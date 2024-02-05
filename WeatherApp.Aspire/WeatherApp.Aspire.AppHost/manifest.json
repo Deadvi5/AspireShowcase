@@ -1,0 +1,78 @@
+{
+  "resources": {
+    "outputCache": {
+      "type": "container.v0",
+      "image": "redis:latest",
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "containerPort": 6379
+        }
+      },
+      "connectionString": "{outputCache.bindings.tcp.host}:{outputCache.bindings.tcp.port}"
+    },
+    "mongo": {
+      "type": "container.v0",
+      "image": "mongo:latest",
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "containerPort": 27017
+        }
+      },
+      "connectionString": "{mongo.bindings.tcp.host}:{mongo.bindings.tcp.port}"
+    },
+    "weather": {
+      "type": "mongodb.database.v0",
+      "parent": "mongo"
+    },
+    "weatherapi": {
+      "type": "project.v0",
+      "path": "../../WeatherApp.Api/WeatherApp.Api.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "ConnectionStrings__weather": "{weather.connectionString}",
+        "ConnectionStrings__outputCache": "{outputCache.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "frontend": {
+      "type": "project.v0",
+      "path": "../../WeatherApp.Web/WeatherApp.Web.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "services__weatherapi__0": "{weatherapi.bindings.http.url}",
+        "services__weatherapi__1": "{weatherapi.bindings.https.url}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    }
+  }
+}
