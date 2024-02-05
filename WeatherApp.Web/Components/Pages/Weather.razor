@@ -9,6 +9,9 @@
 <h1>Weather</h1>
 
 <p>This component demonstrates showing data.</p>
+<p>  
+    Current Time: @DateTimeOffset.UtcNow
+</p>  
 
 @if (forecasts == null)
 {
@@ -18,10 +21,6 @@
 }
 else
 {
-    <p>  
-        Current Time: @DateTimeOffset.UtcNow
-    </p>  
-    
     <table class="table">
         <thead>
         <tr>

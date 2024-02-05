@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -75,5 +74,5 @@ record WeatherForecastList(IReadOnlyCollection<WeatherForecast> Forecasts, DateT
 {
     [BsonId] 
     [BsonRepresentation(BsonType.ObjectId)]
-    private string Id { get; set; }
+    private string? Id { get; set; }
 }

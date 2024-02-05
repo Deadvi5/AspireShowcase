@@ -10,10 +10,8 @@ builder.Services.AddRazorComponents()
 
 builder.AddRedisOutputCache("outputCache");
 
-builder.Services.AddHttpClient<WeatherApiClient>(x =>
-{
-    x.BaseAddress = new Uri("http://weatherapi");
-});
+builder.Services.AddHttpClient<WeatherApiClient>(
+    static client => client.BaseAddress = new Uri("http://weatherapi"));
 
 var app = builder.Build();
 
