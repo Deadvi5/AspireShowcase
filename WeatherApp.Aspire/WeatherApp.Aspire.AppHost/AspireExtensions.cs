@@ -45,4 +45,18 @@ public static class AspireExtensions
             .WithServiceBinding(8001, 8001, scheme: "http")
             .WithAnnotation(new ContainerImageAnnotation { Image = "redis/redis-stack", Tag = "latest" });        
     }
+
+    public static IResourceBuilder<ContainerResource> AddGrafanaContainer(this IDistributedApplicationBuilder builder, string grafanaHttp)
+    {
+        var grafana = builder.AddContainer("grafana", "grafana/grafana")
+            .WithVolumeMount("../../grafana/config", "/etc/grafana")
+            .WithVolumeMount("../../grafana/dashboards", "/var/lib/grafana/dashboards")
+            .WithServiceBinding(containerPort: 3000, hostPort: 3000, name: grafanaHttp, scheme: "http");
+
+        builder.AddContainer("prometheus", "prom/prometheus")
+            .WithVolumeMount("../../prometheus", "/etc/prometheus")
+            .WithServiceBinding(9090, hostPort: 9090);
+
+        return grafana;
+    }
 }
