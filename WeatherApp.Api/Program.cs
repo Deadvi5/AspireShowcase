@@ -23,7 +23,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 var summaries = new[]
 {
@@ -55,13 +55,19 @@ app.MapGet("/weatherforecast", async (IMongoClient mongoClient) =>
         var collection = database.GetCollection<WeatherForecastList>("forecast");
         var filter = Builders<WeatherForecastList>.Filter.Empty;
         var sort = Builders<WeatherForecastList>.Sort.Descending("LastModifiedDate");
-        var lastDocument = await collection.Find(filter).Sort(sort).Limit(1).FirstOrDefaultAsync();   
-        
-        return lastDocument.Forecasts;
+        var lastDocument = await collection.Find(filter).Sort(sort).Limit(1).FirstOrDefaultAsync();
+
+        return lastDocument?.Forecasts;
     })
     .WithName("GetWeatherForecast")
-    .CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromSeconds(15)))
+    .CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromSeconds(30)))
     .WithOpenApi();
+
+app.MapGet("startup", () => new
+{
+    GrafanaUrl = app.Configuration["GRAFANA_URL"]!
+})
+.WithOpenApi();
 
 app.Run();
 
