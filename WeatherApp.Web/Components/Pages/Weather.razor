@@ -1,8 +1,9 @@
 ﻿@page "/weather"
 @using Microsoft.AspNetCore.OutputCaching
+@using Microsoft.Extensions.Diagnostics.Latency
 @attribute [StreamRendering]
 @inject WeatherApiClient WeatherClient
-@attribute [OutputCache(Duration = 20)]
+@attribute [OutputCache(Duration = 20, Tags = ["weather"])]
 
 <PageTitle>Weather</PageTitle>
 

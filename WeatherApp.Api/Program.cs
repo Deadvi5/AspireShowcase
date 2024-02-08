@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.OutputCaching;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -30,7 +31,7 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapPost("/weatherforecast", (IMongoClient mongoClient) =>
+app.MapPost("/weatherforecast", async (IOutputCacheStore cache, IMongoClient mongoClient) =>
     {
         var forecast = Enumerable.Range(1, 5).Select(index =>
                 new WeatherForecast
@@ -45,6 +46,7 @@ app.MapPost("/weatherforecast", (IMongoClient mongoClient) =>
         database.CreateCollection("forecast");
         var collection = database.GetCollection<WeatherForecastList>("forecast");
         collection.InsertOne(new WeatherForecastList(forecast, DateTimeOffset.UtcNow));
+        await cache.EvictByTagAsync("weather", default);
     })
     .WithName("PostWeatherForecast")
     .WithOpenApi();
@@ -60,7 +62,8 @@ app.MapGet("/weatherforecast", async (IMongoClient mongoClient) =>
         return lastDocument?.Forecasts;
     })
     .WithName("GetWeatherForecast")
-    .CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromSeconds(30)))
+    .CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromSeconds(30))
+        .Tag("weather"))
     .WithOpenApi();
 
 app.MapGet("startup", () => new
