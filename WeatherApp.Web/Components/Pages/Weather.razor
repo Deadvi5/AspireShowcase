@@ -1,6 +1,5 @@
 ﻿@page "/weather"
 @using Microsoft.AspNetCore.OutputCaching
-@using Microsoft.Extensions.Diagnostics.Latency
 @attribute [StreamRendering]
 @inject WeatherApiClient WeatherClient
 @attribute [OutputCache(Duration = 20, Tags = ["weather"])]
@@ -14,7 +13,7 @@
     Current Time: @DateTimeOffset.UtcNow
 </p>  
 
-@if (forecasts == null)
+@if (_forecasts == null)
 {
     <p>
         <em>Loading...</em>
@@ -32,7 +31,7 @@ else
         </tr>
         </thead>
         <tbody>
-        @foreach (var forecast in forecasts)
+        @foreach (var forecast in _forecasts)
         {
             <tr>
                 <td>@forecast.Date.ToShortDateString()</td>
@@ -46,18 +45,18 @@ else
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private IReadOnlyCollection<WeatherForecast>? _forecasts;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await WeatherClient.GetWeatherAsync();
+        _forecasts = await WeatherClient.GetWeatherAsync();
     }
 
     public class WeatherForecast
     {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
+        public DateOnly Date { get; init; }
+        public int TemperatureC { get; init; }
+        public string? Summary { get; init; }
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
 

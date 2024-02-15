@@ -11,7 +11,7 @@ public class WeatherApiClient
         _client = client;
     }
 
-    public async Task<Weather.WeatherForecast[]> GetWeatherAsync()
+    public async Task<Weather.WeatherForecast[]?> GetWeatherAsync()
     {
         return await _client.GetFromJsonAsync<Weather.WeatherForecast[]>("weatherforecast") ?? [];
     }

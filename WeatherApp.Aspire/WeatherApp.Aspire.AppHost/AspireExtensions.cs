@@ -8,7 +8,7 @@ public static class AspireExtensions
     public static IResourceBuilder<MongoDBContainerResource> WithMongoExpress(this IResourceBuilder<MongoDBContainerResource> builder)
     {
         builder.ApplicationBuilder.AddContainer("mongo-express", "mongo-express", "latest")
-            .WithServiceBinding(8081, 8081, scheme: "http")
+            .WithEndpoint(8081, 8081, scheme: "http")
             .WithAnnotation(ManifestPublishingCallbackAnnotation.Ignore)
             .WithEnvironment(context =>
             {
@@ -28,7 +28,7 @@ public static class AspireExtensions
     public static IResourceBuilder<RedisContainerResource> WithRedisRedInsight(this IResourceBuilder<RedisContainerResource> builder)
     {   
         builder.ApplicationBuilder.AddContainer("red-insight", "redislabs/redisinsight", "latest")
-            .WithServiceBinding(8001, 8001, scheme: "http")
+            .WithEndpoint(8001, 8001, scheme: "http")
             .WithAnnotation(ManifestPublishingCallbackAnnotation.Ignore)
             .WithVolumeMount("redinsightvolume", "/var/volume/", VolumeMountType.Named);
         
@@ -41,8 +41,8 @@ public static class AspireExtensions
         
         return builder.AddResource(redis)
             .WithAnnotation(ManifestPublishingCallbackAnnotation.Ignore)
-            .WithAnnotation(new ServiceBindingAnnotation(ProtocolType.Tcp, port: port, containerPort: 6379))
-            .WithServiceBinding(8001, 8001, scheme: "http")
+            .WithAnnotation(new EndpointAnnotation(ProtocolType.Tcp, port: port, containerPort: 6379))
+            .WithEndpoint(8001, 8001, scheme: "http")
             .WithAnnotation(new ContainerImageAnnotation { Image = "redis/redis-stack", Tag = "latest" });        
     }
 
@@ -51,11 +51,11 @@ public static class AspireExtensions
         var grafana = builder.AddContainer("grafana", "grafana/grafana")
             .WithVolumeMount("../../grafana/config", "/etc/grafana")
             .WithVolumeMount("../../grafana/dashboards", "/var/lib/grafana/dashboards")
-            .WithServiceBinding(containerPort: 3000, hostPort: 3000, name: grafanaHttp, scheme: "http");
+            .WithEndpoint(containerPort: 3000, hostPort: 3000, name: grafanaHttp, scheme: "http");
 
         builder.AddContainer("prometheus", "prom/prometheus")
             .WithVolumeMount("../../prometheus", "/etc/prometheus")
-            .WithServiceBinding(9090, hostPort: 9090);
+            .WithEndpoint(9090, hostPort: 9090);
 
         return grafana;
     }
